@@ -41,7 +41,7 @@
 <script src="three.min.js"></script>
 <script src="OrbitControls.js"></script>
 <script src="GLTFLoader.js"></script>
-<script src="model_data.js"></script>
+<script src="model_data.js"></script><script src="RoomEnvironment.js"></script>
 <script>
 (function(){
   var container = document.getElementById('scene');
@@ -54,10 +54,10 @@
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer.domElement);
 
-  var scene = new THREE.Scene();
+  var scene = new THREE.Scene(); var pmrem = new THREE.PMREMGenerator(renderer); scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   // 深色渐变背景
   var bgCanvas = document.createElement('canvas');
   bgCanvas.width = 2; bgCanvas.height = 512;
@@ -88,7 +88,7 @@
   var key = new THREE.SpotLight(0xffffff, 2.2, 60, Math.PI/5, 0.35, 1.2);
   key.position.set(8, 14, 6);
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 4;
   key.shadow.bias = -0.0004;
   scene.add(key);
 
