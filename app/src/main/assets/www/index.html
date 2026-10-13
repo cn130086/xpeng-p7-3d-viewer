@@ -42,6 +42,7 @@
 <script>function b64ToBytes(b64){var tbl='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';var lookup=new Uint8Array(256);for(var i=0;i<64;i++)lookup[tbl.charCodeAt(i)]=i;var len=b64.length,pad=0;if(b64[len-1]==='=')pad++;if(b64[len-2]==='=')pad++;var out=new Uint8Array((len*3/4)-pad),p=0;for(var j=0;j<len;j+=4){var t=(lookup[b64.charCodeAt(j)]<<18)|(lookup[b64.charCodeAt(j+1)]<<12)|(lookup[b64.charCodeAt(j+2)]<<6)|lookup[b64.charCodeAt(j+3)];out[p++]=(t>>16)&255;if(p<out.length)out[p++]=(t>>8)&255;if(p<out.length)out[p++]=t&255;}return out;}</script>
 <script src="OrbitControls.js"></script>
 <script src="GLTFLoader.js"></script>
+<script src="RoomEnvironment.js"></script>
 <script src="model_data.js"></script>
 <script>
 (function(){
@@ -59,6 +60,8 @@
   container.appendChild(renderer.domElement);
 
   var scene = new THREE.Scene();
+  var pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.background = new THREE.Color(0xffffff);
 
   var camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 200);
@@ -127,18 +130,6 @@
   grid.material.opacity = 0.35;
   scene.add(grid);
 
-  // ===== 背景光柱（氛围） =====
-  for (var i = 0; i < 10; i++) {
-    var a = (i / 10) * Math.PI * 2;
-    var pillarGeo = new THREE.BoxGeometry(0.25, 7, 0.25);
-    var pillarMat = new THREE.MeshBasicMaterial({
-      color: 0x2a4a77, transparent: true, opacity: 0.55
-    });
-    var pillar = new THREE.Mesh(pillarGeo, pillarMat);
-    pillar.position.set(Math.cos(a) * 16, 3.5, Math.sin(a) * 16);
-    scene.add(pillar);
-  }
-
   // ===== 加载车模 =====
   document.querySelector('#loading p').textContent = '正在解析车模…';
   try {
@@ -157,6 +148,10 @@
     car.position.y += (size.y * scale / 2);
     car.traverse(function(o){
       if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
+      if (o.isMesh && o.material) {
+        o.material.metalness = 0.9;
+        o.material.roughness = 0.25;
+      }
     });
     scene.add(car);
     document.getElementById('loading').classList.add('hide');
