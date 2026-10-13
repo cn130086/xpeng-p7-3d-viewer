@@ -7,7 +7,8 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import androidx.webkit.WebViewAssetLoader;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -20,21 +21,28 @@ public class MainActivity extends Activity {
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         s.setAllowFileAccess(true);
+        s.setAllowFileAccessFromFileURLs(true);
+        s.setAllowUniversalAccessFromFileURLs(true);
         s.setMediaPlaybackRequiresUserGesture(false);
-
-        final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
-                .build();
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                return assetLoader.shouldInterceptRequest(request.getUrl());
+                String url = request.getUrl().toString();
+                if (url.contains("xpeng_p7.glb")) {
+                    try {
+                        InputStream is = getAssets().open("www/xpeng_p7.glb");
+                        return new WebResourceResponse("model/gltf-binary", "binary", is);
+                    } catch (IOException e) {
+                        return null;
+                    }
+                }
+                return null;
             }
         });
 
         setContentView(webView);
-        webView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
+        webView.loadUrl("file:///android_asset/www/index.html");
     }
 
     @Override
