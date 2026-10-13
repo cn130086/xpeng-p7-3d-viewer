@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>XPENG P7 3D 展厅</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#0a0e14;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    touch-action:none; -webkit-user-select:none; user-select:none; }
+  #scene { position:fixed; inset:0; }
+  #title { position:fixed; top:calc(20px + env(safe-area-inset-top)); left:0; right:0;
+    text-align:center; pointer-events:none; z-index:10; }
+  #title h1 { color:#fff; font-size:22px; letter-spacing:8px; font-weight:600;
+    text-shadow:0 2px 20px rgba(0,0,0,.6); }
+  #title p { color:rgba(255,255,255,.55); font-size:12px; letter-spacing:3px; margin-top:6px; }
+  #hint { position:fixed; bottom:calc(28px + env(safe-area-inset-bottom)); left:0; right:0;
+    text-align:center; color:rgba(255,255,255,.45); font-size:12px; letter-spacing:2px;
+    pointer-events:none; z-index:10; animation:fade 3s ease-in-out infinite; }
+  @keyframes fade { 0%,100%{opacity:.45} 50%{opacity:1} }
+  #loading { position:fixed; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; background:#0a0e14; z-index:20;
+    transition:opacity .6s; }
+  #loading.hide { opacity:0; pointer-events:none; }
+  .spin { width:44px; height:44px; border:3px solid rgba(255,255,255,.15);
+    border-top-color:#4da3ff; border-radius:50%; animation:sp 1s linear infinite; }
+  @keyframes sp { to { transform:rotate(360deg) } }
+  #loading p { color:rgba(255,255,255,.6); margin-top:16px; font-size:13px; letter-spacing:2px; }
+  #credit { position:fixed; bottom:calc(8px + env(safe-area-inset-bottom)); left:0; right:0;
+    text-align:center; color:rgba(255,255,255,.28); font-size:10px; z-index:10; pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<div id="title"><h1>小鹏 P7</h1><p>XPENG P7 &middot; 2021 &middot; 3D 展厅</p></div>
+<div id="hint">左右滑动旋转 &middot; 双指缩放</div>
+<div id="credit">3D model: supercarmodels (CC-BY) via Sketchfab</div>
+<div id="loading"><div class="spin"></div><p>正在加载车模…</p></div>
+
+<script src="three.min.js"></script>
+<script src="OrbitControls.js"></script>
+<script src="GLTFLoader.js"></script>
+<script>
+(function(){
+  var container = document.getElementById('scene');
+  var W = window.innerWidth, H = window.innerHeight;
+
+  var renderer = new THREE.WebGLRenderer({ antialias:true });
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer.domElement);
+
+  var scene = new THREE.Scene();
+  // 深色渐变背景
+  var bgCanvas = document.createElement('canvas');
+  bgCanvas.width = 2; bgCanvas.height = 512;
+  var bgCtx = bgCanvas.getContext('2d');
+  var grad = bgCtx.createLinearGradient(0,0,0,512);
+  grad.addColorStop(0, '#1a2332');
+  grad.addColorStop(0.55, '#0d1420');
+  grad.addColorStop(1, '#05080d');
+  bgCtx.fillStyle = grad; bgCtx.fillRect(0,0,2,512);
+  var bgTex = new THREE.CanvasTexture(bgCanvas);
+  scene.background = bgTex;
+
+  var camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 200);
+  camera.position.set(7.5, 3.2, 9.5);
+
+  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 0.9, 0);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.06;
+  controls.minDistance = 4.5;
+  controls.maxDistance = 18;
+  controls.maxPolarAngle = Math.PI * 0.52;
+  controls.enablePan = false;
+
+  // ===== 展厅灯光 =====
+  scene.add(new THREE.AmbientLight(0x8899bb, 0.35));
+
+  var key = new THREE.SpotLight(0xffffff, 2.2, 60, Math.PI/5, 0.35, 1.2);
+  key.position.set(8, 14, 6);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.bias = -0.0004;
+  scene.add(key);
+
+  var fill = new THREE.DirectionalLight(0x88aaff, 0.5);
+  fill.position.set(-9, 6, -4);
+  scene.add(fill);
+
+  var rim = new THREE.DirectionalLight(0xffd9a0, 0.7);
+  rim.position.set(-4, 5, -10);
+  scene.add(rim);
+
+  // 顶部灯带（视觉装饰 + 补光）
+  var stripGeo = new THREE.BoxGeometry(14, 0.12, 0.5);
+  var stripMat = new THREE.MeshBasicMaterial({ color: 0xbfe0ff });
+  [-4.5, 4.5].forEach(function(z){
+    var strip = new THREE.Mesh(stripGeo, stripMat);
+    strip.position.set(0, 9.5, z);
+    scene.add(strip);
+    var pl = new THREE.PointLight(0x9fc4ff, 0.9, 25);
+    pl.position.set(0, 9, z);
+    scene.add(pl);
+  });
+
+  // ===== 地面：深色反光展厅地板 =====
+  var floorGeo = new THREE.CircleGeometry(30, 64);
+  var floorMat = new THREE.MeshStandardMaterial({
+    color: 0x11161f, metalness: 0.85, roughness: 0.32
+  });
+  var floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI/2;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  // 地面微光网格（科技感）
+  var grid = new THREE.GridHelper(40, 40, 0x2a3a55, 0x182238);
+  grid.position.y = 0.01;
+  grid.material.transparent = true;
+  grid.material.opacity = 0.35;
+  scene.add(grid);
+
+  // ===== 圆形展台 =====
+  var stageGeo = new THREE.CylinderGeometry(4.6, 4.9, 0.22, 64);
+  var stageMat = new THREE.MeshStandardMaterial({
+    color: 0x1b2330, metalness: 0.7, roughness: 0.4
+  });
+  var stage = new THREE.Mesh(stageGeo, stageMat);
+  stage.position.y = 0.11;
+  stage.receiveShadow = true;
+  scene.add(stage);
+
+  // 展台边缘光环
+  var ringGeo = new THREE.TorusGeometry(4.62, 0.035, 12, 100);
+  var ringMat = new THREE.MeshBasicMaterial({ color: 0x4da3ff });
+  var ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = Math.PI/2;
+  ring.position.y = 0.22;
+  scene.add(ring);
+
+  // ===== 背景光柱（氛围） =====
+  for (var i = 0; i < 10; i++) {
+    var a = (i / 10) * Math.PI * 2;
+    var pillarGeo = new THREE.BoxGeometry(0.25, 7, 0.25);
+    var pillarMat = new THREE.MeshBasicMaterial({
+      color: 0x2a4a77, transparent: true, opacity: 0.55
+    });
+    var pillar = new THREE.Mesh(pillarGeo, pillarMat);
+    pillar.position.set(Math.cos(a) * 16, 3.5, Math.sin(a) * 16);
+    scene.add(pillar);
+  }
+
+  // ===== 加载车模 =====
+  var loader = new THREE.GLTFLoader();
+  loader.load('xpeng_p7.glb', function(gltf){
+    var car = gltf.scene;
+    // 自动归一化：缩放到合适大小并居中
+    var box = new THREE.Box3().setFromObject(car);
+    var size = box.getSize(new THREE.Vector3());
+    var center = box.getCenter(new THREE.Vector3());
+    var maxDim = Math.max(size.x, size.y, size.z);
+    var scale = 7.6 / maxDim;
+    car.scale.setScalar(scale);
+    car.position.sub(center.multiplyScalar(scale));
+    car.position.y += 0.22; // 站到展台上
+    car.traverse(function(o){
+      if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
+    });
+    scene.add(car);
+    document.getElementById('loading').classList.add('hide');
+    // 入场：缓慢自动旋转一圈后停止
+    var autoSpin = true, spinT = 0;
+    var spinTimer = setInterval(function(){
+      spinT += 0.016;
+      if (spinT > 7 || !autoSpin) { clearInterval(spinTimer); controls.autoRotate = false; }
+    }, 16);
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.2;
+    renderer.domElement.addEventListener('pointerdown', function(){
+      autoSpin = false; controls.autoRotate = false;
+    }, { once:true });
+  }, undefined, function(err){
+    document.querySelector('#loading p').textContent = '车模加载失败';
+    console.error(err);
+  });
+
+  // 光环呼吸动画
+  var clock = new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    var t = clock.getElapsedTime();
+    ringMat.color.setHSL(0.58, 0.85, 0.55 + Math.sin(t * 1.6) * 0.08);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', function(){
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+</script>
+</body>
+</html>
