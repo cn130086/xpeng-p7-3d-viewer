@@ -38,9 +38,10 @@
 <div id="credit">3D model: supercarmodels (CC-BY) via Sketchfab</div>
 <div id="loading"><div class="spin"></div><p>正在加载车模…</p></div>
 
-<script src="three.min.js"></script><script>/* Android 12 WebView 禁止 file:// 下用 fetch，改走 XHR */(function(){var origFetch=window.fetch;window.fetch=function(url,opts){var urlStr=url.toString();if(urlStr.indexOf('file://')===0||urlStr.indexOf('xpeng_p7.glb')>=0){return new Promise(function(resolve,reject){var xhr=new XMLHttpRequest();xhr.open('GET',urlStr,true);xhr.responseType='arraybuffer';xhr.onload=function(){if(xhr.status===0||(xhr.status>=200&&xhr.status<300)){resolve(new Response(xhr.response,{status:200}))}else{reject(new TypeError('Failed to fetch'))}};xhr.onerror=function(){reject(new TypeError('Failed to fetch'))};xhr.send()})}return origFetch.apply(this,arguments)}})();</script>
+<script src="three.min.js"></script>
 <script src="OrbitControls.js"></script>
 <script src="GLTFLoader.js"></script>
+<script src="model_data.js"></script>
 <script src="RoomEnvironment.js"></script>
 <script>
 (function(){
@@ -161,8 +162,14 @@
 
   // ===== 加载车模 =====
   
+  document.querySelector('#loading p').textContent = '正在解析车模…';
+  try {
+  var binary = atob(MODEL_B64);
+  var len = binary.length;
+  var bytes = new Uint8Array(len);
+  for (var i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
   var loader = new THREE.GLTFLoader();
-    loader.load('xpeng_p7.glb', function(gltf){
+  loader.parse(bytes.buffer, '', function(gltf){
     var car = gltf.scene;
     // 自动归一化：缩放到合适大小并居中
     var box = new THREE.Box3().setFromObject(car);
@@ -189,9 +196,12 @@
     renderer.domElement.addEventListener('pointerdown', function(){
       autoSpin = false; controls.autoRotate = false;
     }, { once:true });
-    }, undefined, function(err){
-      document.querySelector('#loading p').textContent = '车模加载失败: ' + (err && err.message ? err.message : '').substring(0,100);
-    });
+  }, function(err){
+    document.querySelector('#loading p').textContent = '车模解析失败: ' + (err && err.message ? err.message : '').substring(0,100);
+  });
+  } catch(e) {
+    document.querySelector('#loading p').textContent = '车模加载失败: ' + e.message;
+  }
 
   // 光环呼吸动画
   var clock = new THREE.Clock();
