@@ -38,7 +38,7 @@
 <div id="credit">3D model: supercarmodels (CC-BY) via Sketchfab</div>
 <div id="loading"><div class="spin"></div><p>正在加载车模…</p></div>
 
-<script src="three.min.js"></script>
+<script src="three.min.js"></script> <script> function b64ToBytes(b64){   var tbl='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';   var lookup=new Uint8Array(256);   for(var i=0;i<64;i++)lookup[tbl.charCodeAt(i)]=i;   var len=b64.length,pad=0;   if(b64[len-1]==='=')pad++;   if(b64[len-2]==='=')pad++;   var out=new Uint8Array((len*3/4)-pad),p=0;   for(var j=0;j<len;j+=4){     var t=(lookup[b64.charCodeAt(j)]<<18)|(lookup[b64.charCodeAt(j+1)]<<12)|(lookup[b64.charCodeAt(j+2)]<<6)|lookup[b64.charCodeAt(j+3)];     out[p++]=(t>>16)&255;     if(p<out.length)out[p++]=(t>>8)&255;     if(p<out.length)out[p++]=t&255;   }   return out; } </script>
 <script src="OrbitControls.js"></script>
 <script src="GLTFLoader.js"></script>
 <script src="model_data.js"></script>
@@ -136,10 +136,10 @@
   
   document.querySelector('#loading p').textContent = '正在解析车模…';
   try {
-  var binary = atob(MODEL_B64);
-  var len = binary.length;
-  var bytes = new Uint8Array(len);
-  for (var i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+  var bytes = b64ToBytes(MODEL_B64);
+  
+  
+  
   var loader = new THREE.GLTFLoader();
   loader.parse(bytes.buffer, '', function(gltf){
     var car = gltf.scene;
