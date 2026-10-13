@@ -2,8 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     >
 
+
     <application
         android:label="小鹏P7 3D展厅"
+        android:icon="@mipmap/ic_launcher"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
         android:hardwareAccelerated="true"
         android:allowBackup="false">
@@ -19,3 +21,4 @@
         </activity>
     </application>
 </manifest>
+
