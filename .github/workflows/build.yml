@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
 
 
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,6 +25,13 @@ jobs:
           curl -sL -o OrbitControls.js "https://muse.ai/files/1422056750982536/1638752414559457/svnxlsyb00teib6qba3o4cx0/OrbitControls.js"
           curl -sL -o GLTFLoader.js "https://muse.ai/files/1422056750982536/1087968534207277/btqkbnlmvp7khn0dcrcf8deu/GLTFLoader.js"
           ls -lh
+          python3 -c "
+          import base64
+          data = open('xpeng_p7.glb','rb').read()
+          b64 = base64.b64encode(data).decode()
+          open('model_data.js','w').write('var MODEL_B64=\"' + b64 + '\";')
+          print('model_data.js created', len(b64))
+          "
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
       - name: Build debug APK
