@@ -62,6 +62,7 @@
   var scene = new THREE.Scene();
   var pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  pmrem.dispose();
   scene.background = new THREE.Color(0xffffff);
 
   var camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 200);
@@ -134,6 +135,7 @@
   document.querySelector('#loading p').textContent = '正在解析车模…';
   try {
     var bytes = b64ToBytes(MODEL_B64);
+    MODEL_B64 = null;
     var loader = new THREE.GLTFLoader();
     loader.parse(bytes.buffer, '', function(gltf){
     var car = gltf.scene;
