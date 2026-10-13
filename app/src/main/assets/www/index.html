@@ -159,8 +159,9 @@
   }
 
   // ===== 加载车模 =====
-  var loader = new THREE.GLTFLoader();
-  loader.load('xpeng_p7.glb', function(gltf){
+  var loader = new THREE.GLTFLoader();   console.log('开始加载车模: xpeng_p7.glb');   document.querySelector('#loading p').textContent = '开始加载车模…';
+  
+ loader.load('xpeng_p7.glb', function(gltf){
     var car = gltf.scene;
     // 自动归一化：缩放到合适大小并居中
     var box = new THREE.Box3().setFromObject(car);
@@ -188,7 +189,7 @@
       autoSpin = false; controls.autoRotate = false;
     }, { once:true });
   }, undefined, function(err){
-    document.querySelector('#loading p').textContent = '车模加载失败';
+    document.querySelector('#loading p').textContent = '车模加载失败: ' + (err && err.message ? err.message : JSON.stringify(err)).substring(0, 200);
     console.error(err);
   });
 
