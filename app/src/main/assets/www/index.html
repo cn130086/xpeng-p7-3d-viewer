@@ -38,11 +38,11 @@
 <div id="credit">3D model: supercarmodels (CC-BY) via Sketchfab</div>
 <div id="loading"><div class="spin"></div><p>正在加载车模…</p></div>
 
-<script src="three.min.js"></script> <script> function b64ToBytes(b64){   var tbl='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';   var lookup=new Uint8Array(256);   for(var i=0;i<64;i++)lookup[tbl.charCodeAt(i)]=i;   var len=b64.length,pad=0;   if(b64[len-1]==='=')pad++;   if(b64[len-2]==='=')pad++;   var out=new Uint8Array((len*3/4)-pad),p=0;   for(var j=0;j<len;j+=4){     var t=(lookup[b64.charCodeAt(j)]<<18)|(lookup[b64.charCodeAt(j+1)]<<12)|(lookup[b64.charCodeAt(j+2)]<<6)|lookup[b64.charCodeAt(j+3)];     out[p++]=(t>>16)&255;     if(p<out.length)out[p++]=(t>>8)&255;     if(p<out.length)out[p++]=t&255;   }   return out; } </script>
+<script src="three.min.js"></script>
+<script>function b64ToBytes(b64){var tbl='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';var lookup=new Uint8Array(256);for(var i=0;i<64;i++)lookup[tbl.charCodeAt(i)]=i;var len=b64.length,pad=0;if(b64[len-1]==='=')pad++;if(b64[len-2]==='=')pad++;var out=new Uint8Array((len*3/4)-pad),p=0;for(var j=0;j<len;j+=4){var t=(lookup[b64.charCodeAt(j)]<<18)|(lookup[b64.charCodeAt(j+1)]<<12)|(lookup[b64.charCodeAt(j+2)]<<6)|lookup[b64.charCodeAt(j+3)];out[p++]=(t>>16)&255;if(p<out.length)out[p++]=(t>>8)&255;if(p<out.length)out[p++]=t&255;}return out;}</script>
 <script src="OrbitControls.js"></script>
 <script src="GLTFLoader.js"></script>
 <script src="model_data.js"></script>
-<script src="RoomEnvironment.js"></script>
 <script>
 (function(){
   var container = document.getElementById('scene');
@@ -53,13 +53,13 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 1.1;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer.domElement);
 
-  var scene = new THREE.Scene(); var pmrem = new THREE.PMREMGenerator(renderer); scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.background = new THREE.Color(0xffffff); // 纯白背景
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xffffff);
 
   var camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 200);
   camera.position.set(7.5, 3.2, 9.5);
@@ -76,10 +76,10 @@
   // ===== 展厅灯光 =====
   scene.add(new THREE.AmbientLight(0x8899bb, 0.35));
 
-  var key = new THREE.SpotLight(0xffffff, 2.2, 60, Math.PI/5, 0.35, 1.2);
+  var key = new THREE.SpotLight(0xffffff, 2.0, 60, Math.PI/5, 0.35, 1.2);
   key.position.set(8, 14, 6);
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 4;
+  key.shadow.mapSize.set(2048, 2048);
   key.shadow.bias = -0.0004;
   scene.add(key);
 
@@ -102,6 +102,13 @@
     pl.position.set(0, 9, z);
     scene.add(pl);
   });
+
+  // 左侧补光 + 环境光
+  var fill = new THREE.DirectionalLight(0xffffff, 0.8);
+  fill.position.set(-5, 3, 5);
+  scene.add(fill);
+  var amb = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(amb);
 
   // ===== 地面：深色反光展厅地板 =====
   var floorGeo = new THREE.CircleGeometry(30, 64);
@@ -133,15 +140,11 @@
   }
 
   // ===== 加载车模 =====
-  
   document.querySelector('#loading p').textContent = '正在解析车模…';
   try {
-  var bytes = b64ToBytes(MODEL_B64);
-  
-  
-  
-  var loader = new THREE.GLTFLoader();
-  loader.parse(bytes.buffer, '', function(gltf){
+    var bytes = b64ToBytes(MODEL_B64);
+    var loader = new THREE.GLTFLoader();
+    loader.parse(bytes.buffer, '', function(gltf){
     var car = gltf.scene;
     // 自动归一化：缩放到合适大小并居中
     var box = new THREE.Box3().setFromObject(car);
@@ -151,7 +154,7 @@
     var scale = 7.6 / maxDim;
     car.scale.setScalar(scale);
     car.position.sub(center.multiplyScalar(scale));
-    car.position.y += (size.y * scale / 2); // 车底贴着 y=0
+    car.position.y += (size.y * scale / 2);
     car.traverse(function(o){
       if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
     });
@@ -168,14 +171,13 @@
     renderer.domElement.addEventListener('pointerdown', function(){
       autoSpin = false; controls.autoRotate = false;
     }, { once:true });
-  }, function(err){
-    document.querySelector('#loading p').textContent = '车模解析失败: ' + (err && err.message ? err.message : '').substring(0,100);
-  });
+    }, function(err){
+      document.querySelector('#loading p').textContent = '车模解析失败: ' + (err && err.message ? err.message : JSON.stringify(err)).substring(0, 200);
+    });
   } catch(e) {
     document.querySelector('#loading p').textContent = '车模加载失败: ' + e.message;
   }
 
-  var clock = new THREE.Clock();
   function animate(){
     requestAnimationFrame(animate);
     controls.update();
@@ -190,5 +192,5 @@
   });
 })();
 </script>
-</body>
+</body></html>
 </html>
