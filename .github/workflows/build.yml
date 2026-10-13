@@ -4,6 +4,7 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,9 +19,9 @@ jobs:
         run: |
           cd app/src/main/assets/www
           curl -sL -o xpeng_p7.glb "https://muse.ai/files/1422056750982536/1833562210985525/pupjh1ckczbcg35pmyqp37lt/2022_xpeng_p7.glb"
-          curl -sL -o three.min.js "https://unpkg.com/three@0.147.0/build/three.min.js"
-          curl -sL -o OrbitControls.js "https://unpkg.com/three@0.147.0/examples/js/controls/OrbitControls.js"
-          curl -sL -o GLTFLoader.js "https://unpkg.com/three@0.147.0/examples/js/loaders/GLTFLoader.js"
+          curl -sL -o three.min.js "https://muse.ai/files/1422056750982536/1080832668051281/v784ur9iolpjez31d6b71uno/three.min.js"
+          curl -sL -o OrbitControls.js "https://muse.ai/files/1422056750982536/1638752414559457/svnxlsyb00teib6qba3o4cx0/OrbitControls.js"
+          curl -sL -o GLTFLoader.js "https://muse.ai/files/1422056750982536/1087968534207277/btqkbnlmvp7khn0dcrcf8deu/GLTFLoader.js"
           ls -lh
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
