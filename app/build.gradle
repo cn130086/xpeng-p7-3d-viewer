@@ -15,7 +15,7 @@ android {
         versionCode 1
         versionName '1.0'
     }
-
+1.6.0
 
     buildTypes {
         release {
@@ -29,5 +29,5 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.webkit:webkit:1.8.0'
+    implementation 'androidx.webkit:webkit:1.6.0'
 }
