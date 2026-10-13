@@ -11,6 +11,14 @@ on:
 
 
 
+
+
+
+
+
+
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,13 +38,6 @@ jobs:
           curl -sL -o GLTFLoader.js "https://muse.ai/files/1422056750982536/1087968534207277/btqkbnlmvp7khn0dcrcf8deu/GLTFLoader.js"
           curl -sL -o RoomEnvironment.js "https://muse.ai/files/1422056750982536/2019447682051384/yth8orq0nqigwebtx7ofnrmg/RoomEnvironment.js"
           ls -lh
-          python3 << 'PYEOF'
-          import base64
-          data = open('xpeng_p7.glb','rb').read()
-          b64 = base64.b64encode(data).decode()
-          open('model_data.js','w').write('var MODEL_B64="' + b64 + '";')
-          print('model_data.js created', len(b64))
-          PYEOF
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
       - name: Build debug APK
