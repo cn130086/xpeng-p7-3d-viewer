@@ -33,7 +33,7 @@
 </head>
 <body>
 <div id="scene"></div>
-<div id="title"><h1>小鹏 P7</h1><p>XPENG P7 &middot; 2021 &middot; 3D 展厅</p></div>
+<div id="title"><h1>小鹏 P7</h1><p>XPENG P7 &middot; 3D 展厅</p></div>
 <div id="hint">左右滑动旋转 &middot; 双指缩放</div>
 <div id="credit">3D model: supercarmodels (CC-BY) via Sketchfab</div>
 <div id="loading"><div class="spin"></div><p>正在加载车模…</p></div>
@@ -177,7 +177,7 @@
     var scale = 7.6 / maxDim;
     car.scale.setScalar(scale);
     car.position.sub(center.multiplyScalar(scale));
-    car.position.y += 0.22; // 站到展台上
+    car.position.y += 0.22 + (size.y * scale / 2); // 车底贴合展台上表面
     car.traverse(function(o){
       if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
     });
