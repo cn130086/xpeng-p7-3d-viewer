@@ -2,11 +2,9 @@ plugins {
     id 'com.android.application'
 }
 
-
 android {
     namespace 'com.xpeng.viewer'
     compileSdk 31
-
 
     defaultConfig {
         applicationId 'com.xpeng.viewer'
@@ -15,7 +13,6 @@ android {
         versionCode 1
         versionName '1.0'
     }
-1.6.0
 
     buildTypes {
         release {
