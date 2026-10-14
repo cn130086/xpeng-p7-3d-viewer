@@ -158,7 +158,7 @@
       if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
       if (o.isMesh && o.material) {
         o.material.metalness = 0.9; o.material.envMapIntensity = 1.0;
-        o.material.roughness = 0.25;
+        o.material.roughness = 0.25; var cc = o.material.color; if (cc && (cc.r + cc.g + cc.b) > 1.0) { cc.set(0xffffff); }
       }
     });
     scene.add(car);
