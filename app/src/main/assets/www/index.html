@@ -125,13 +125,25 @@
 
 
 
-  // ===== 地面：深色反光展厅地板 =====
+  // ===== 地面：无缝影棚（纯色+边缘渐隐，不受灯光影响） =====
+  var fadeCv = document.createElement('canvas'); fadeCv.width = fadeCv.height = 256;
+  var fctx = fadeCv.getContext('2d');
+  var rg = fctx.createRadialGradient(128,128,0, 128,128,128);
+  rg.addColorStop(0, '#ffffff'); rg.addColorStop(0.55, '#ffffff'); rg.addColorStop(1, '#000000');
+  fctx.fillStyle = rg; fctx.fillRect(0,0,256,256);
   var floorGeo = new THREE.CircleGeometry(30, 64);
-  var floorMat = new THREE.MeshStandardMaterial({ color: 0x9cc9c9, transparent: true, opacity: 0.6, roughness: 0.45, metalness: 0.05 });
+  var floorMat = new THREE.MeshBasicMaterial({ color: 0x9cc9c9, transparent: true, opacity: 0.6, alphaMap: new THREE.CanvasTexture(fadeCv) });
   var floor = new THREE.Mesh(floorGeo, floorMat);
   floor.rotation.x = -Math.PI/2;
-  floor.receiveShadow = true;
+  floor.renderOrder = 0;
   scene.add(floor);
+  // 阴影层（只显示车影）
+  var shadowPlane = new THREE.Mesh(floorGeo, new THREE.ShadowMaterial({ opacity: 0.25 }));
+  shadowPlane.rotation.x = -Math.PI/2;
+  shadowPlane.position.y = 0.001;
+  shadowPlane.receiveShadow = true;
+  shadowPlane.renderOrder = 1;
+  scene.add(shadowPlane);
 
   // ===== 加载车模 =====
   document.querySelector('#loading p').textContent = '正在解析车模…';
