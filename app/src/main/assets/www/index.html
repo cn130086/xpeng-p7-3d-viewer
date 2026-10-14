@@ -63,17 +63,8 @@
 
 
 
-  // ===== 影棚渐变背景 =====
-  (function(){
-    var cv = document.createElement('canvas'); cv.width = 16; cv.height = 512;
-    var ctx = cv.getContext('2d');
-    var g = ctx.createLinearGradient(0, 0, 0, 512);
-    g.addColorStop(0, '#e4f2f2');
-    g.addColorStop(0.55, '#aad7d7');
-    g.addColorStop(1, '#7fbdbd');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, 16, 512);
-    scene.background = new THREE.CanvasTexture(cv);
-  })();
+  // ===== 影棚背景：与地板同色浅青，无缝 =====
+  scene.background = new THREE.Color(0x9cc9c9);
 
   var camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 200);
   camera.position.set(0, 3, 11);
