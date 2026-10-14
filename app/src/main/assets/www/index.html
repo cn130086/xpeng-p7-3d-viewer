@@ -139,7 +139,8 @@
       if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
       if (o.isMesh && o.material) {
         var mt = o.material; var nm = mt.name || '';
-        if (/^(Bodyshell|Bonnet|Bumper|Door|Boot|Bagashnik)/.test(nm)) { mt.transparent = false; mt.opacity = 1; mt.depthWrite = true; }
+        var isGlass = (nm === 'Bodyshell0041Mtl' || nm === 'Doorpsidef0151Mtl' || nm === 'Doorpsider1Mtl');
+        if (/^(Bodyshell|Bonnet|Bumper|Door|Boot|Bagashnik)/.test(nm) && !isGlass) { mt.transparent = false; mt.opacity = 1; mt.depthWrite = true; }
         mt.metalness = 0.9; mt.envMapIntensity = 1.0;
         mt.roughness = 0.25; var cc = mt.color; if (cc && (cc.r + cc.g + cc.b) > 1.0) { cc.set(0xffffff); }
       }
