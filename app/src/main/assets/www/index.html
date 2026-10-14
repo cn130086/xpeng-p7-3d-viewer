@@ -68,9 +68,9 @@
     var cv = document.createElement('canvas'); cv.width = 16; cv.height = 512;
     var ctx = cv.getContext('2d');
     var g = ctx.createLinearGradient(0, 0, 0, 512);
-    g.addColorStop(0, '#f0f8f8');
-    g.addColorStop(0.55, '#d7e9e9');
-    g.addColorStop(1, '#b4d3d3');
+    g.addColorStop(0, '#e4f2f2');
+    g.addColorStop(0.55, '#aad7d7');
+    g.addColorStop(1, '#7fbdbd');
     ctx.fillStyle = g; ctx.fillRect(0, 0, 16, 512);
     scene.background = new THREE.CanvasTexture(cv);
   })();
@@ -91,6 +91,22 @@
   controls.maxDistance = 18;
   controls.maxPolarAngle = Math.PI * 0.52;
   controls.enablePan = false;
+
+  // ===== 5秒无操作自动归位 =====
+  var homePos = new THREE.Vector3(0, 3, 11);
+  var homeTarget = new THREE.Vector3(0, 1, 0);
+  var idleTimer = null, returning = false;
+  function cancelReturn(){ returning = false; if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; } }
+  function goHomeTick(){
+    if (!returning) return;
+    camera.position.lerp(homePos, 0.08);
+    controls.target.lerp(homeTarget, 0.08);
+    if (camera.position.distanceTo(homePos) < 0.05) {
+      camera.position.copy(homePos); controls.target.copy(homeTarget); returning = false;
+    }
+  }
+  controls.addEventListener('start', function(){ cancelReturn(); });
+  controls.addEventListener('end', function(){ cancelReturn(); idleTimer = setTimeout(function(){ returning = true; }, 5000); });
 
   // ===== 展厅灯光 =====
 
@@ -120,7 +136,7 @@
 
   // ===== 地面：深色反光展厅地板 =====
   var floorGeo = new THREE.CircleGeometry(30, 64);
-  var floorMat = new THREE.MeshStandardMaterial({ color: 0xc7d9d9, transparent: true, opacity: 0.6, roughness: 0.45, metalness: 0.05 });
+  var floorMat = new THREE.MeshStandardMaterial({ color: 0x9cc9c9, transparent: true, opacity: 0.6, roughness: 0.45, metalness: 0.05 });
   var floor = new THREE.Mesh(floorGeo, floorMat);
   floor.rotation.x = -Math.PI/2;
   floor.receiveShadow = true;
@@ -183,6 +199,7 @@
 
   function animate(){
     requestAnimationFrame(animate);
+    goHomeTick();
     controls.update();
     renderer.render(scene, camera);
   }
