@@ -51,7 +51,7 @@
 
   var renderer = new THREE.WebGLRenderer({ antialias:true });
   renderer.setSize(W, H);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); renderer.setPixelRatio(1);
+  renderer.setPixelRatio(1);
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
@@ -125,6 +125,9 @@
     MODEL_B64 = null;
     var loader = new THREE.GLTFLoader();
     loader.parse(bytes.buffer, '', function(gltf){
+
+
+
     var car = gltf.scene;
     // 自动归一化：缩放到合适大小并居中
     var box = new THREE.Box3().setFromObject(car);
@@ -137,9 +140,9 @@
     car.position.y += (size.y * scale / 2);
     car.traverse(function(o){
       if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
-      if (o.isMesh && o.material) {
-        
-        var cc = o.material.color; if (cc && (cc.r + cc.g + cc.b) > 1.0 && o.material.map == null) { cc.set(0xffffff); }
+ isMesh && o.material) {
+             if (o.
+        var mt = o.material; var nm = mt.name || ''; if (/^(Bodyshell|Bonnet|Bumper|Door|Boot|Bagashnik)/.test(nm)) { mt.transparent = false; mt.opacity = 1; mt.depthWrite = true; mt.polygonOffset = true; mt.polygonOffsetFactor = -1; mt.polygonOffsetUnits = -1; } mt.metalness = 0.9; mt.envMapIntensity = 1.0; mt.roughness = 0.25; var cc = mt.color; if (cc && (cc.r + cc.g + cc.b) > 1.0) { cc.set(0xffffff); }
       }
     });
     scene.add(car);
