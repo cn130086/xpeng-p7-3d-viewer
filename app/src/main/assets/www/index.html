@@ -49,9 +49,9 @@
   var container = document.getElementById('scene');
   var W = window.innerWidth, H = window.innerHeight;
 
-  var renderer = new THREE.WebGLRenderer({ antialias:true, logarithmicDepthBuffer:true });
+  var renderer = new THREE.WebGLRenderer({ antialias:true });
   renderer.setSize(W, H);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); renderer.setPixelRatio(1);
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
@@ -65,7 +65,7 @@
 
   scene.background = new THREE.Color(0xffffff);
 
-  var camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 200);
+  var camera = new THREE.PerspectiveCamera(42, W/H, 0.5, 100);
   camera.position.set(0, 3, 11);
 
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
