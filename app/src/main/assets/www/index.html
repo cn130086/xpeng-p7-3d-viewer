@@ -63,7 +63,34 @@
 
 
 
-  scene.background = new THREE.Color(0xffffff);
+  scene.background = new THREE.Color(0x060a15);
+  // ===== 星空背景 =====
+  (function(){
+    function makeStars(count, size, opacity) {
+      var geo = new THREE.BufferGeometry();
+      var pos = new Float32Array(count * 3);
+      var col = new Float32Array(count * 3);
+      for (var i = 0; i < count; i++) {
+        var theta = Math.random() * Math.PI * 2;
+        var y = Math.random() * 0.95 + 0.02;
+        var rxz = Math.sqrt(Math.max(0, 1 - y * y));
+        var r = 55 + Math.random() * 30;
+        pos[i*3] = Math.cos(theta) * rxz * r;
+        pos[i*3+1] = y * r - 4;
+        pos[i*3+2] = Math.sin(theta) * rxz * r;
+        var b = 0.45 + Math.random() * 0.55, t = Math.random();
+        if (t < 0.62) { col[i*3] = b; col[i*3+1] = b; col[i*3+2] = b; }
+        else if (t < 0.86) { col[i*3] = b*0.72; col[i*3+1] = b*0.84; col[i*3+2] = b; }
+        else { col[i*3] = b; col[i*3+1] = b*0.88; col[i*3+2] = b*0.72; }
+      }
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      var m = new THREE.PointsMaterial({ size: size, vertexColors: true, transparent: true, opacity: opacity, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: false });
+      scene.add(new THREE.Points(geo, m));
+    }
+    makeStars(1500, 1.6, 0.85);
+    makeStars(350, 2.8, 1.0);
+  })();
 
   var camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 200);
   camera.position.set(0, 3, 11);
