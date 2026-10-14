@@ -101,18 +101,6 @@
   scene.add(rim); var amb = new THREE.AmbientLight(0xffffff, 0.7); scene.add(amb); var top = new THREE.DirectionalLight(0xffffff, 0.8); top.position.set(0, 10, 0); scene.add(top);
  
 
-  // 顶部灯带（视觉装饰 + 补光）
-  var stripGeo = new THREE.BoxGeometry(14, 0.12, 0.5);
-  var stripMat = new THREE.MeshBasicMaterial({ color: 0xbfe0ff });
-  [-4.5, 4.5].forEach(function(z){
-    var strip = new THREE.Mesh(stripGeo, stripMat);
-    strip.position.set(0, 9.5, z);
-    scene.add(strip);
-    var pl = new THREE.PointLight(0x9fc4ff, 0.9, 25);
-    pl.position.set(0, 9, z);
-    scene.add(pl);
-  });
-
   // 左侧补光 + 环境光
 
 
@@ -131,13 +119,6 @@
   scene.add(floor);
 
   // 地面微光网格（科技感）
-  var grid = new THREE.GridHelper(40, 40, 0x2a3a55, 0x182238);
-  grid.position.y = 0.01;
-  grid.material.transparent = true;
-  grid.material.opacity = 0.35;
-  scene.add(grid);
-
-  // ===== 加载车模 =====
   document.querySelector('#loading p').textContent = '正在解析车模…';
   try {
     var bytes = b64ToBytes(MODEL_B64);
