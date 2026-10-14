@@ -68,9 +68,9 @@
     var cv = document.createElement('canvas'); cv.width = 16; cv.height = 512;
     var ctx = cv.getContext('2d');
     var g = ctx.createLinearGradient(0, 0, 0, 512);
-    g.addColorStop(0, '#f4f4f8');
-    g.addColorStop(0.55, '#dedee6');
-    g.addColorStop(1, '#c4c4cf');
+    g.addColorStop(0, '#f0f8f8');
+    g.addColorStop(0.55, '#d7e9e9');
+    g.addColorStop(1, '#b4d3d3');
     ctx.fillStyle = g; ctx.fillRect(0, 0, 16, 512);
     scene.background = new THREE.CanvasTexture(cv);
   })();
@@ -120,7 +120,7 @@
 
   // ===== 地面：深色反光展厅地板 =====
   var floorGeo = new THREE.CircleGeometry(30, 64);
-  var floorMat = new THREE.MeshStandardMaterial({ color: 0xcfcfd8, transparent: true, opacity: 0.6, roughness: 0.45, metalness: 0.05 });
+  var floorMat = new THREE.MeshStandardMaterial({ color: 0xc7d9d9, transparent: true, opacity: 0.6, roughness: 0.45, metalness: 0.05 });
   var floor = new THREE.Mesh(floorGeo, floorMat);
   floor.rotation.x = -Math.PI/2;
   floor.receiveShadow = true;
@@ -153,18 +153,12 @@
         mt.roughness = 0.25; var cc = mt.color; if (cc && (cc.r + cc.g + cc.b) > 1.0) { cc.set(0xffffff); }
       }
     });
-    // ===== 地板镜面反射：翻转克隆车模 =====
+    // ===== 地板镜面反射：翻转克隆车模（实心，靠半透明地板压暗） =====
     var mirror = car.clone(true);
     mirror.scale.y *= -1;
     mirror.position.y *= -1;
     mirror.traverse(function(o){
-      if (o.isMesh) {
-        o.castShadow = false; o.receiveShadow = false;
-        var ms = Array.isArray(o.material) ? o.material : [o.material];
-        var cs = [];
-        for (var mi = 0; mi < ms.length; mi++) { var c = ms[mi].clone(); c.transparent = true; c.opacity = 0.4; c.depthWrite = false; cs.push(c); }
-        o.material = Array.isArray(o.material) ? cs : cs[0];
-      }
+      if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; }
     });
     scene.add(mirror);
     scene.add(car);
